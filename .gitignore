@@ -16,3 +16,7 @@
 *.exe
 *.out
 *.app
+raspi-fprint-relay
+
+#PHP Storm
+.idea
