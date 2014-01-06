@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-I.
+CFLAGS=-I. -g
 DEPS = raspi-fprint-relay.h
 OBJ = raspi-fprint-relay.o functions.o
 LIBS=-lwiringPi -lfprint
