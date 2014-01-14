@@ -17,6 +17,7 @@
 *.out
 *.app
 raspi-fprint-relay
+lcd-test
 
 #PHP Storm
 .idea

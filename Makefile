@@ -1,7 +1,7 @@
 CC=gcc
 CFLAGS=-I. -g
-DEPS = raspi-fprint-relay.h
-OBJ = raspi-fprint-relay.o functions.o
+DEPS = raspi-fprint-relay.h lcd.h
+OBJ = raspi-fprint-relay.o functions.o lcd.o
 LIBS=-lwiringPi -lfprint
 CURL_CONFIG=$(shell curl-config --libs)
 
@@ -9,6 +9,9 @@ CURL_CONFIG=$(shell curl-config --libs)
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 raspi-fprint-relay: $(OBJ)
+	gcc -o $@ $^ $(CFLAGS) $(LIBS) $(CURL_CONFIG)
+
+lcd-test: $(OBJ)
 	gcc -o $@ $^ $(CFLAGS) $(LIBS) $(CURL_CONFIG)
 
 clean:
