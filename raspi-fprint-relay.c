@@ -4,6 +4,10 @@
 #include <libfprint/fprint.h>
 #include <curl/curl.h>
 #include <raspi-fprint-relay.h>
+#include <wiringPiI2C.h>
+
+// Global vars
+state system_state = ENROLLMENT;
 
 int main(void) {
 	// Vars
@@ -16,7 +20,7 @@ int main(void) {
 	// Init libfprint
 	fp_init();
 
-	// Signal handler - does an fp_exit()
+	// Signal handler - does an fp_exit() on SIGINT
 	init_signals();
 
 	// Get the first fingerprint device
