@@ -19,3 +19,5 @@ void cursor_blink_on();
 void write_display_mode_change(int change, int on);
 void cursor_right(int num);
 void cursor_left(int num);
+void display_one_line();
+void display_two_lines();

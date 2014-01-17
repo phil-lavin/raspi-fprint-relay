@@ -256,11 +256,26 @@ void cursor_right(int num) {
 /*
 * Moves cursor num spaces left
 */
-
 void cursor_left(int num) {
 	int i;
 
 	for (i = 0; i < num; i++) {
 		write_4_bits(0x10, 0);
 	}
+}
+
+/*
+* Sets display to 1 line mode.
+* Also sets 4 bit bus mode and 5x8 dots font. Shucks.
+*/
+void display_one_line() {
+	write_4_bits(0x20, 0);
+}
+
+/*
+* Sets display to 1 line mode.
+* Also sets 4 bit bus mode and 5x8 dots font. Shucks.
+*/
+void display_two_lines() {
+	write_4_bits(0x28, 0);
 }
