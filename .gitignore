@@ -18,6 +18,7 @@
 *.app
 raspi-fprint-relay
 lcd-test
+matrix-test
 
 #PHP Storm
 .idea

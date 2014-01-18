@@ -1,5 +1,5 @@
-void matrix_init(int col1, int col2, int col3, int col4, int row1, int row2, int row3);
-void set_all_low();
-void row_in();
+void matrix_init(int row1, int row2, int row3, int row4, int col1, int col2, int col3, void (*function)(char));
+void reset();
 void handle_row_interrupt(int pin);
-
+int which_row(int pin);
+int which_col(int pin);
