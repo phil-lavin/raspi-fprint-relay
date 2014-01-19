@@ -151,7 +151,7 @@ void handle_row_interrupt(int pin) {
 			callback_function(matrix_map[current_row][high_pin]);
 			break;
 		}
-	};
+	}
 
 	// Reset
 	reset();
