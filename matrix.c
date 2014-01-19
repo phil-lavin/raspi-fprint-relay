@@ -92,6 +92,8 @@ int which_col(int pin) {
 
 void handle_row_interrupt(int pin) {
 	int i;
+	int high_pin;
+	int high_cnt;
 	int current_row;
 	struct timeval now;
 	unsigned long diff;
@@ -125,12 +127,31 @@ void handle_row_interrupt(int pin) {
 	digitalWrite(current_row, HIGH);
 
 	// Scan for a high col
-	for (i = 0; i < 3; i++) {
-		if (digitalRead(col_pins[i]) == HIGH) {
-			callback_function(matrix_map[current_row][i]);
+	while (1) {
+		/*
+		 * This logic is a bit silly but it seems that, for whatever reason
+		 * more than 1 pin can be high for a short period of time. The code
+		 * loops until only 1 pin is high. This has been proven to produce
+		 * accurate results regarding which key was pressed.
+		*/
+		high_cnt = 0;
+		high_pin = 0;
+
+		// Count number of high pins. Also record which pin is high so we can use
+		// it when there's only 1 high pin
+		for (i = 0; i < 3; i++) {
+			if (digitalRead(col_pins[i]) == HIGH) {
+				high_pin = i;
+				high_cnt++;
+			}
+		}
+
+		// If there's only 1 high pin, use it
+		if (high_cnt == 1) {
+			callback_function(matrix_map[current_row][high_pin]);
 			break;
 		}
-	}
+	};
 
 	// Reset
 	reset();
