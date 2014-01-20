@@ -79,9 +79,10 @@ void write_admin_menu(int shift) {
 	const char *options[] = {
 		"1. Restock",
 		"2. Enroll",
-		"3. Deal Drugs"
+		"3. Deal Drugs",
+		"0. Exit"
 	};
-	const int num_options = 3; // Should be the number of things in the above
+	const int num_options = 4; // Should be the number of things in the above
 
 	// Don't let us shift more than the number of options
 	if (shift > num_options) {
@@ -127,9 +128,13 @@ void handle_key_press(char key) {
 		else if (key == '*') {
 			write_admin_menu(-1);
 		}
-		// 1 - 9
-		if (key >= 49 && key <= 57) {
+		// 0 - 9
+		if (key >= 48 && key <= 57) {
 			switch (key) {
+				// Exit
+				case '0':
+					lcd_reset();
+					break;
 				// Restock
 				case '1':
 					// Unlock teh door
