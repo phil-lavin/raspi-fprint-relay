@@ -1,13 +1,17 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/time.h>
 #include <wiringPi.h>
 #include <matrix.h>
 
 #define IGNORE_PRESS_INTERVAL_BELOW 200000
+#define TRI_CODE_PER_KEY_TIME 2000000
 
 int col_pins[3];
 int row_pins[4];
+char tri_code[3];
+char *tri_code_pos;
 int interrupt_lock = 1;
 int interrupts_registered = 0;
 struct timeval last_press;
@@ -31,6 +35,8 @@ void matrix_init(int row1, int row2, int row3, int row4, int col1, int col2, int
 	row_pins[3] = row4;
 
 	callback_function = function;
+
+	tri_code_pos = &tri_code[0];
 
 	wiringPiSetupGpio();
 	reset();
@@ -88,6 +94,48 @@ int which_col(int pin) {
 	}
 
 	return 0;
+}
+
+void update_tri_code(char key) {
+	struct timeval now;
+	unsigned long diff;
+
+	gettimeofday(&now, NULL);
+
+	diff = (now.tv_sec * 1000000 + now.tv_usec) - (last_press.tv_sec * 1000000 + last_press.tv_usec);
+
+	// If we haven't had a key press in TRI_CODE_PER_KEY_TIME
+	if (diff > TRI_CODE_PER_KEY_TIME) {
+		tri_code_pos = &tri_code[0];
+		tri_code[2] = 0;
+	}
+
+	// If the tri-code buffer is full, shift left
+	if (tri_code_pos == &tri_code[2] && tri_code[2]) {
+		memcpy(tri_code, tri_code + 1, 2);
+		tri_code[2] = 0;
+	}
+
+	// Add key to the buffer
+	*tri_code_pos = key;
+
+	// Incremement the buffer, if we're not already at the end
+	if (tri_code_pos != &tri_code[2]) {
+		tri_code_pos++;
+	}
+}
+
+/*
+* Returns a pointer to the tri code
+* this is to a statically allocated buffer and thus does NOT need free()ing
+*/
+char *get_tri_code() {
+	// Return NULL if there isn't a complete tri code
+	if (tri_code_pos != &tri_code[2] || !tri_code[2]) {
+		return NULL;
+	}
+
+	return tri_code;
 }
 
 void handle_row_interrupt(int pin) {
@@ -148,6 +196,7 @@ void handle_row_interrupt(int pin) {
 
 		// If there's only 1 high pin, use it
 		if (high_cnt == 1) {
+			update_tri_code(matrix_map[current_row][high_pin]);
 			callback_function(matrix_map[current_row][high_pin]);
 			break;
 		}

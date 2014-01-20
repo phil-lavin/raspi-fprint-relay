@@ -3,3 +3,5 @@ void reset();
 void handle_row_interrupt(int pin);
 int which_row(int pin);
 int which_col(int pin);
+void update_tri_code(char key);
+char *get_tri_code();
