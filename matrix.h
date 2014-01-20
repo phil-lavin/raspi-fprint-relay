@@ -5,3 +5,5 @@ int which_row(int pin);
 int which_col(int pin);
 void update_tri_code(char key);
 char *get_tri_code();
+void update_blocking_buffer(char key);
+char *wait_for_keypress(char stop_char);

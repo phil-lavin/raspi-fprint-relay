@@ -13,8 +13,11 @@ int row_pins[4];
 char tri_code[3];
 char tri_code_str[4];
 char *tri_code_pos;
+char blocking_buffer[64];
+char *blocking_buffer_pos;
 int interrupt_lock = 1;
 int interrupts_registered = 0;
+int blocked = 0;
 struct timeval last_press;
 static void (*callback_function)(char);
 
@@ -38,6 +41,7 @@ void matrix_init(int row1, int row2, int row3, int row4, int col1, int col2, int
 	callback_function = function;
 
 	tri_code_pos = &tri_code[0];
+	blocking_buffer_pos = &blocking_buffer[0];
 
 	wiringPiSetupGpio();
 	reset();
@@ -142,6 +146,49 @@ char *get_tri_code() {
 	return tri_code_str;
 }
 
+/*
+ * Updates the buffer for the wait_for_keypress function. Shifts left after 64 chars
+*/
+void update_blocking_buffer(char key) {
+	// If the blocking buffer is full, shift left
+	if (blocking_buffer_pos == &blocking_buffer[63] && blocking_buffer[63]) {
+		memcpy(blocking_buffer, blocking_buffer + 1, 63);
+		blocking_buffer[63] = 0;
+	}
+
+	// Incremement the buffer, if we're not already at the end and we've started
+	if (blocking_buffer_pos != &blocking_buffer[63] && blocking_buffer[0]) {
+		blocking_buffer_pos++;
+	}
+
+	// Add key to the buffer
+	*blocking_buffer_pos = key;
+}
+
+/*
+ * Blocking function that waits for a key press of a certain character and then returns all preceeding key presses
+ * Returns a pointer to a statically allocated buffer. Do NOT free() it.
+*/
+char *wait_for_keypress(char stop_char) {
+	// Start blocking
+	blocked = 1;
+
+	while (1) {
+		// If the last character written was the stop char
+		if (blocking_buffer_pos && *blocking_buffer_pos == stop_char) {
+			// Strip the stop char
+			*blocking_buffer_pos = 0;
+			// Stop blocking
+			blocked = 0;
+			// Return a prt to the buffer
+			return blocking_buffer;
+		}
+
+		// 0.001 seconds
+		usleep(10000);
+	}
+}
+
 void handle_row_interrupt(int pin) {
 	int i;
 	int high_pin;
@@ -200,8 +247,14 @@ void handle_row_interrupt(int pin) {
 
 		// If there's only 1 high pin, use it
 		if (high_cnt == 1) {
-			update_tri_code(matrix_map[current_row][high_pin]);
-			callback_function(matrix_map[current_row][high_pin]);
+			if (!blocked) {
+				update_tri_code(matrix_map[current_row][high_pin]);
+				callback_function(matrix_map[current_row][high_pin]);
+			}
+			else {
+				update_blocking_buffer(matrix_map[current_row][high_pin]);
+			}
+
 			break;
 		}
 	}
