@@ -127,7 +127,7 @@ void update_tri_code(char key) {
 }
 
 /*
-* Returns a pointer to the tri code
+* Returns a pointer to the tri code. This is a null byte terminated char array.
 * this is to a statically allocated buffer and thus does NOT need free()ing
 */
 char *get_tri_code() {
