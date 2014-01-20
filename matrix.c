@@ -123,8 +123,8 @@ void handle_row_interrupt(int pin) {
 	}
 
 	// Current row as output, high
-	pinMode(current_row, OUTPUT);
-	digitalWrite(current_row, HIGH);
+	pinMode(pin, OUTPUT);
+	digitalWrite(pin, HIGH);
 
 	// Scan for a high col
 	while (1) {
