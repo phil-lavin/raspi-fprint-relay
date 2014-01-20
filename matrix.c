@@ -11,6 +11,7 @@
 int col_pins[3];
 int row_pins[4];
 char tri_code[3];
+char tri_code_str[4];
 char *tri_code_pos;
 int interrupt_lock = 1;
 int interrupts_registered = 0;
@@ -135,7 +136,10 @@ char *get_tri_code() {
 		return NULL;
 	}
 
-	return tri_code;
+	memcpy(tri_code_str, tri_code, 3);
+	tri_code_str[3] = '\0';
+
+	return tri_code_str;
 }
 
 void handle_row_interrupt(int pin) {

@@ -8,6 +8,7 @@
 
 // Global vars
 state system_state = ENROLLMENT;
+int lcd_state;
 
 int main(void) {
 	// Vars
@@ -17,8 +18,15 @@ int main(void) {
 	struct fp_img *img;
 	int err;
 
+	// Init the LCD
+	lcdinit(0x00, 0x12, 0x20);
+	lcd_reset();
+
 	// Init libfprint
 	fp_init();
+
+	// Init the keypad
+	matrix_init(4, 17, 27, 22, 10, 9, 11, handle_key_press);
 
 	// Signal handler - does an fp_exit() on SIGINT
 	init_signals();
@@ -48,4 +56,35 @@ int main(void) {
 	fp_exit();
 
 	return 0;
+}
+
+void lcd_reset() {
+	clear_screen();
+	write_string("How Many Cans? 1");
+	cursor_left(1);
+	cursor_blink_on();
+
+	lcd_state = 0;
+}
+
+void handle_key_press(char key) {
+	char *tri_code;
+
+	// Default "How Many Cans?" screen
+	if (lcd_state == 0) {
+		// 1 - 9
+		if (key >= 49 && key <= 57) {
+			write_char(key);
+			cursor_left(1);
+		}
+	}
+
+	if (tri_code = (char *)get_tri_code()) {
+		if (strcmp(tri_code, "*69") == 0) {
+			clear_screen();
+			write_string("Admin MOFO!\nKeith Wheal");
+		}
+	}
+
+	printf("Key press of %c\n", key);
 }
