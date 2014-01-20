@@ -20,4 +20,4 @@ matrix-test: $(MATRIX_TEST_OBJ)
 	gcc -o $@ $^ $(CFLAGS) $(LIBS) $(CURL_CONFIG)
 
 clean:
-	rm -f raspi-fprint-relay lcd-test *.o
+	rm -f raspi-fprint-relay lcd-test matrix-test *.o
